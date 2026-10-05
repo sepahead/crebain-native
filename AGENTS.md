@@ -26,7 +26,8 @@ cargo clippy --workspace -- -D warnings
 cargo test --workspace
 ```
 
-On Linux, CI first installs `libappindicator3-dev`, `librsvg2-dev`, and `patchelf`.
+On Linux, CI first installs the Bevy build headers (ALSA, udev, X11, xkbcommon, Wayland),
+D-Bus, OpenSSL, and `libappindicator3-dev`. See `.github/workflows/ci.yml` for the exact list.
 
 ## Build commands
 
