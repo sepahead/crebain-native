@@ -3,11 +3,16 @@ pub mod inference;
 pub mod sensor_fusion;
 pub mod transport;
 
+// The CoreML module keeps its non-macOS fallback type-checked on every platform.
+// This crate calls it only on macOS, so the fallback is dead code elsewhere.
+#[cfg_attr(not(target_os = "macos"), allow(dead_code, unused_imports))]
 mod coreml;
 mod onnx_detector;
 
 use sensor_fusion::{FusionConfig, FusionStats, MultiSensorFusion, SensorMeasurement, TrackOutput};
-use std::sync::{Mutex, Once};
+use std::sync::Mutex;
+#[cfg(target_os = "macos")]
+use std::sync::Once;
 
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct NativeDetectionResult {
@@ -38,6 +43,7 @@ pub struct BoundingBox {
     pub y2: f64,
 }
 
+#[cfg(target_os = "macos")]
 static INIT: Once = Once::new();
 
 lazy_static::lazy_static! {
@@ -139,6 +145,7 @@ fn convert_onnx_result(r: onnx_detector::OnnxDetectionResult) -> NativeDetection
     }
 }
 
+#[cfg(target_os = "macos")]
 fn convert_coreml_result(r: coreml::DetectionResult) -> NativeDetectionResult {
     NativeDetectionResult {
         success: r.success,
