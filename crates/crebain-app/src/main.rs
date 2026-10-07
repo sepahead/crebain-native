@@ -19,7 +19,7 @@ fn main() {
         .add_plugins(DefaultPlugins.set(WindowPlugin {
             primary_window: Some(Window {
                 title: "CREBAIN - Adaptives Reaktions- und Aufklärungssystem".into(),
-                resolution: (1600.0, 1000.0).into(),
+                resolution: (1600.0_f32, 1000.0_f32).into(),
                 resizable: true,
                 ..default()
             }),
