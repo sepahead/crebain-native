@@ -505,6 +505,10 @@ pub fn is_available() -> bool {
     {
         // Prefer checking ONNX Runtime execution provider availability since
         // `nvidia-smi` may not be present in minimal/containerized deployments.
+        // Without a loadable ONNX Runtime library the probe can block, so skip it.
+        if !super::onnx_runtime_library_available() {
+            return false;
+        }
         let (trt_available, cuda_available) =
             std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
                 (

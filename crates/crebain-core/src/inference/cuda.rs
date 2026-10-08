@@ -112,6 +112,10 @@ pub fn is_available() -> bool {
         // `nvidia-smi` may not be present in minimal/containerized deployments.
         use ort::execution_providers::{CUDAExecutionProvider, ExecutionProvider};
 
+        // Without a loadable ONNX Runtime library the probe can block, so skip it.
+        if !super::onnx_runtime_library_available() {
+            return false;
+        }
         std::panic::catch_unwind(std::panic::AssertUnwindSafe(|| {
             CUDAExecutionProvider::default().is_available().unwrap_or(false)
         }))

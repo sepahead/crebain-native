@@ -272,6 +272,46 @@ pub fn create_detector_with_backend(backend: Backend) -> Result<Box<dyn Detector
     }
 }
 
+/// Whether the ONNX Runtime library that `ort`'s `load-dynamic` feature opens can be found.
+///
+/// Probing an execution provider calls into ONNX Runtime, which first loads this
+/// library. When the library is absent, that call can block instead of failing, so
+/// the GPU probes report "unavailable" without calling into ONNX Runtime. The
+/// documented deployment sets `ORT_DYLIB_PATH` (see `flake.nix`); otherwise the
+/// default `libonnxruntime.so` is searched in `LD_LIBRARY_PATH` and the standard
+/// library directories.
+#[cfg(target_os = "linux")]
+pub(crate) fn onnx_runtime_library_available() -> bool {
+    use std::path::{Path, PathBuf};
+
+    if let Some(path) = std::env::var_os("ORT_DYLIB_PATH") {
+        return Path::new(&path).is_file();
+    }
+    let mut directories: Vec<PathBuf> = std::env::var_os("LD_LIBRARY_PATH")
+        .map(|value| std::env::split_paths(&value).collect())
+        .unwrap_or_default();
+    for directory in [
+        "/usr/local/lib",
+        "/usr/lib",
+        "/usr/lib/x86_64-linux-gnu",
+        "/usr/lib/aarch64-linux-gnu",
+        "/lib",
+        "/lib64",
+    ] {
+        directories.push(PathBuf::from(directory));
+    }
+    directories.iter().any(|directory| {
+        std::fs::read_dir(directory).is_ok_and(|entries| {
+            entries.flatten().any(|entry| {
+                entry
+                    .file_name()
+                    .to_str()
+                    .is_some_and(|name| name.starts_with("libonnxruntime.so"))
+            })
+        })
+    })
+}
+
 /// Get available backends on the current platform
 pub fn available_backends() -> Vec<Backend> {
     let mut backends = Vec::new();
