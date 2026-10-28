@@ -13,6 +13,9 @@ This file is the operating contract for maintainers and coding agents.
 - Sign every commit. The Git configuration signs with the owner's SSH key.
 - Use [Conventional Commits](https://www.conventionalcommits.org/).
 - Do not add AI attribution or co-author trailers.
+- Do not cite social-media posts. A post can be deleted or edited, and it can state an opinion as a fact,
+  which biases readers and agents and weakens scientific rigor. State the substance in your own words
+  with its date, cite the primary source, and do not link the post or name its author.
 - Releases, tags, and repository settings remain owner actions.
 - Preserve unrelated work and another contributor's active scope.
 
